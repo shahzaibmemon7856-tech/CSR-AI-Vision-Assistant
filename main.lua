@@ -393,16 +393,18 @@ function scanAllImages()
     local contentResolver = ctx.getContentResolver()
     local uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     local projection = { MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME }
-    local cursor = contentResolver.query(uri, projection, nil, nil, MediaStore.Images.Media.DATE_ADDED .. " DESC LIMIT 100")
+    local cursor = contentResolver.query(uri, projection, nil, nil, MediaStore.Images.Media.DATE_ADDED .. " DESC")
     
     if cursor ~= nil then
         local dataCol = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
         local nameCol = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-        while cursor.moveToNext() do
+        local count = 0
+        while cursor.moveToNext() and count < 100 do
             local path = cursor.getString(dataCol)
             local name = cursor.getString(nameCol)
             if path and name then
                 table.insert(foundFiles, {path = path, name = name})
+                count = count + 1
             end
         end
         cursor.close()
